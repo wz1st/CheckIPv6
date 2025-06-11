@@ -36,7 +36,7 @@ if echo "$PUBLIC_IP" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'; then
 fi
 
 if [ -n "$IP" ]; then
-    RES=$(curl -s --max-time 10 "$IP:65535")
+    RES=$(curl -s --max-time 10 "$IP:65535/check")
     CURL_EXIT_CODE=$?
 
     if [ $CURL_EXIT_CODE -ne 0 ]; then
