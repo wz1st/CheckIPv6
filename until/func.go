@@ -1,6 +1,7 @@
 package until
 
 import (
+	"CheckIPv6/global"
 	"errors"
 	"fmt"
 	"io"
@@ -125,18 +126,19 @@ func NodeCheck(ip string) bool {
 
 	resp, err := client.Get(fmt.Sprintf("http://%s:65535/check", ip))
 	if err != nil {
+		fmt.Println("节点不可用")
+		global.HandleTimeout(ip)
 		return false
 	}
 	defer resp.Body.Close()
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
+		global.HandleTimeout(ip)
 		return false
 	}
-	if strings.TrimSpace(string(bodyBytes)) == "1" {
-		return true
-	}
-	return false
+	global.ResetTimeout(ip)
+	return strings.TrimSpace(string(bodyBytes)) == "1"
 }
 
 func Add(ip string, server string) error {

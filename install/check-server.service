@@ -1,0 +1,13 @@
+[Unit]
+Description=CheckIPv6 Server
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/CheckIPv6 -m
+Restart=on-failure
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target

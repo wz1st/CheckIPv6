@@ -35,5 +35,6 @@ func main() {
 	}
 	fmt.Println("启动接口...")
 	router := router.InitRouter(*manage)
+	fmt.Println("启动成功")
 	router.Run(":" + "65535")
 }

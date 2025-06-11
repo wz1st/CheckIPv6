@@ -1,0 +1,13 @@
+[Unit]
+Description=CheckIPv6 Node
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/CheckIPv6 -s=192.168.31.2
+Restart=on-failure
+ExecStop=/bin/kill -SIGTERM $MAINPID
+
+
+[Install]
+WantedBy=multi-user.target

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 )
@@ -53,24 +54,33 @@ func Check1(c *gin.Context) {
 	a := 0
 	if until.CheckIp() {
 		fmt.Println("主节点IPv6可用")
-		a += 1
+		a++
 	}
 
 	if len(ipList) > 0 {
+		var wg sync.WaitGroup
+		var mu sync.Mutex
 		fmt.Println("子节点检测")
 		for _, ip := range ipList {
-			if until.NodeCheck(ip) {
-				fmt.Println("子节点:", ip, "IPv6可用")
-				a += 1
-			} else {
-				fmt.Println("子节点:", ip, "IPv6不可用")
-			}
+			wg.Add(1)
+			go func(ip string) {
+				defer wg.Done()
+				if until.NodeCheck(ip) {
+					fmt.Println("子节点:", ip, "IPv6可用")
+					mu.Lock()
+					a++
+					mu.Unlock()
+				} else {
+					fmt.Println("子节点:", ip, "IPv6不可用")
+				}
+			}(ip)
 		}
-		if float64(a)/float64(len(ipList)+1) >= 0.5 {
-			fmt.Println("节点IPv6可用大于50%")
-			c.String(http.StatusOK, "1")
-			return
-		}
+		wg.Wait()
+	}
+	if float64(a)/float64(len(ipList)+1) >= 0.5 {
+		fmt.Println("节点IPv6可用大于50%")
+		c.String(http.StatusOK, "1")
+		return
 	}
 	c.String(http.StatusOK, "0")
 }
